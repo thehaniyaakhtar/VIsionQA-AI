@@ -41,3 +41,16 @@ learns a shared representation for images and text
 BLIP: incorporates a language generation component
 does not measure similarity, generates new text
 enables it to produce captions describing an image/ answer questions 
+
+Input format processing
+grayscala image: 0-255
+r, g, b
+for an image with dimensions: 800x600 = 480000 pixles
+each pixel: 3 values
+48000 x 3 numbers as input for a single image
+
+main.py: main entry point
+when someone starts a server, FastAPI runs main.py
+creates the web application
+defines the API endpoints, receives uploaded image from user, returns AI's Response
+
