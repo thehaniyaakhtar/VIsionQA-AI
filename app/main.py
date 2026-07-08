@@ -1,7 +1,7 @@
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.responses import JSONResponse
 from PIL import Image
-
+from inference import generate_caption
 
 app = FastAPI()
 
@@ -12,8 +12,8 @@ def home():
     }
 
 # sending an image
-@app.post("/upload")
-async def upload_image(image: UploadFile = File(...)):
+@app.post("/caption")
+async def caption_image(image: UploadFile = File(...)):
     
     try:
     
@@ -36,3 +36,31 @@ async def upload_image(image: UploadFile = File(...)):
                 "error": str(e)
             }
         )
+        
+@app.post("/ask")
+async def ask_question(
+    image: UploadFile = File(...),
+    # uses form for the next field since different inputs are being used
+    question: str = Form(...)
+):
+    try:
+        pil_image = Image.open(image.file)
+        caption = generate_caption(pil_image)
+        
+        return {
+            "file": image.filename,
+            "caption": caption
+        }
+        
+    except Exception as e:
+        return JSONResponse(
+            status_code = 400,
+            content = {
+                "error":str(e)
+            }
+        )
+        
+        
+        
+        
+        
