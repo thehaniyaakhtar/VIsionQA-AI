@@ -1,5 +1,7 @@
 from fastapi import FastAPI, UploadFile, File
+from fastapi.responses import JSONResponse
 from PIL import Image
+
 
 app = FastAPI()
 
@@ -13,14 +15,24 @@ def home():
 @app.post("/upload")
 async def upload_image(image: UploadFile = File(...)):
     
-    # Convert the uploaded file into a Pillow image
-    pil_image = Image.open(image.file)
+    try:
     
-    # Return some information about the image
-    return {
-        "filename": image.filename,
-        "width": pil_image.width,
-        "height": pil_image.height,
-        "mode": pil_image.mode,
-        "format": pil_image.format
-    }
+        # Convert the uploaded file into a Pillow image
+        pil_image = Image.open(image.file)
+        
+        # Ask BLIP to generate a caption
+        caption = generate_caption(pil_image)
+        
+        # Return some information about the image
+        return {
+            "filename": image.filename,
+            "caption": caption
+        }
+
+    except Exception as e:
+        return JSONResponse(
+            status_code=400,
+            content = {
+                "error": str(e)
+            }
+        )
