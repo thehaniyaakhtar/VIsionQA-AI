@@ -30,4 +30,4 @@ def get_image_embedding(image: Image.Image):
         feature = features/features.norm(dim=-1, keepdim=True)
         
         return features.squeeze()
-     # function returns images embeddings
+    # function returns images embeddings
