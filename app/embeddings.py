@@ -2,32 +2,29 @@ from transformers import CLIPProcessor, CLIPModel
 from PIL import Image
 import torch
 
-# Load the pretrained CLIP model and processor
-processor = CLIPProcessor.from_pretrained(
-    "openai/clip-vit-base-patch32"
-)
+from app.config import CLIP_MODEL
 
-model = CLIPModel.from_pretrained(
-    "openai/clip-vit-base-patch32"
-)
+# Load CLIP once when the server starts
+processor = CLIPProcessor.from_pretrained(CLIP_MODEL)
+model = CLIPModel.from_pretrained(CLIP_MODEL)
 
 model.eval()
 
+
 def get_image_embedding(image: Image.Image):
-    '''
-    Generate a feature vector for a Pillow image
-    '''
+    """
+    Generate a normalized CLIP embedding.
+    """
+
     inputs = processor(
-        images = image,
+        images=image,
         return_tensors="pt"
     )
-    
+
     with torch.no_grad():
-        features = model.get_image_features(**inputs)
-        # get image features is called because u want vectors
-        
-        # Normalize the vector
-        feature = features/features.norm(dim=-1, keepdim=True)
-        
-        return features.squeeze()
-    # function returns images embeddings
+        embedding = model.get_image_features(**inputs)
+
+    # Normalize for cosine similarity
+    embedding = embedding / embedding.norm(dim=-1, keepdim=True)
+
+    return embedding.squeeze()
